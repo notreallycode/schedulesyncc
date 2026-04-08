@@ -429,7 +429,7 @@ async function upload() {
   formData.append("image", uploadFile, uploadFile.name || file.name);
 
   try {
-    const res = await fetch("/detect", {
+    const res = await fetch("https://schedulesyncc-backend.onrender.com/detect", {
       method: "POST",
       body: formData,
     });
