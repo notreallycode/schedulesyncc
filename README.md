@@ -2,7 +2,7 @@
 
 🚀 Turn your college timetable into a fully synced calendar in seconds.
 
-🔗 Live Demo: https://schedulesyncc.netlify.app/
+🔗 Live Demo: https://shedulesync.netlify.app/
 
 ---
 
