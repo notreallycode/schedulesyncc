@@ -72,5 +72,5 @@ https://youtu.be/oxGKhU-3b9Q?si=j7-jg2-JnCnso6lm
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/schedulesync.git
+git clone https://github.com/notreallycode/schedulesync.git
 cd schedulesync
