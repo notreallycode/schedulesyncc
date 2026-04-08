@@ -56,6 +56,8 @@ No manual input. No mistakes. Just seamless scheduling.
 
 ## 🎥 Demo
 https://youtu.be/oxGKhU-3b9Q?si=j7-jg2-JnCnso6lm
+ OR
+ https://drive.google.com/file/d/158Rz7Lvso63W6057biZZPSQ20SbLLj_E/view?usp=sharing
 
 ---
 
