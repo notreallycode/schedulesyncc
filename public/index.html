@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeTableSync</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <h1 class="brand-title">Schedule<span>Sync</span></h1>
+      <p>Upload a photo of your college timetable and get it instantly synced to your calendar.</p>
+      <div class="stepper">
+        <span class="step is-active" id="stepUpload">Upload</span>
+        <span class="step-sep"></span>
+        <span class="step" id="stepReview">Review &amp; Export</span>
+      </div>
+    </header>
+
+    <section class="panel" id="uploadPanel">
+      <h2>Upload Your Timetable</h2>
+      <label class="dropzone" for="image">
+        <input type="file" id="image" accept="image/*">
+        <div class="drop-content" id="dropContent">
+          <div class="drop-icon">🖼️</div>
+          <p class="drop-title">Drop your timetable here</p>
+          <p class="drop-subtitle">Supports PNG, JPG, JPEG photos of your schedule</p>
+          <span class="browse-btn">Browse files</span>
+        </div>
+        <div class="upload-preview hidden" id="uploadPreview">
+          <img id="previewImg" alt="Timetable preview">
+          <div class="scan-overlay hidden" id="scanOverlay">
+            <span class="spinner spinner-lg"></span>
+            <h4 id="scanTitle">Scanning timetable...</h4>
+            <p id="scanSubtitle">AI is reading your schedule</p>
+          </div>
+          <div class="upload-success-badge hidden" id="uploadSuccessBadge">
+            <span class="success-check">✓</span>
+            <span>Uploaded successfully</span>
+          </div>
+        </div>
+      </label>
+      <div class="enhance-controls">
+        <label><input type="checkbox" id="enhanceAuto" checked> Auto Enhance</label>
+        <label><input type="checkbox" id="enhanceInvert"> Inversion</label>
+        <label><input type="checkbox" id="enhancePixel" checked> Pixel Improve</label>
+        <button type="button" class="btn" id="rotateLeftBtn">↺ Rotate</button>
+        <span class="rotate-degree" id="rotateDegree">0°</span>
+      </div>
+      <div class="feature-points">
+        <span>Works with photos, screenshots</span>
+        <span>Reads any Mon-Fri grid layout</span>
+        <span>Review before exporting</span>
+      </div>
+      <p class="file-info" id="fileInfo">No file selected</p>
+      <div class="actions">
+        <button class="btn btn-primary" id="detectBtn" onclick="upload()">Detect Timetable</button>
+      </div>
+      <div class="upload-state hidden" id="uploadState">
+        <span class="spinner"></span>
+        <span id="uploadStateText">Uploading...</span>
+      </div>
+      <div class="ocr-skeleton hidden" id="ocrSkeleton"></div>
+      <p class="status" id="status"></p>
+    </section>
+
+    <section class="panel hidden" id="reviewPanel">
+      <div class="review-head">
+        <div>
+          <h2>Review Your Schedule</h2>
+          <p id="summaryText">0 classes detected</p>
+          <div class="reminder-wrap">
+            <div class="control-group">
+              <label for="reminderMinutes">Reminder</label>
+              <select id="reminderMinutes">
+                <option value="0">No reminder</option>
+                <option value="5">5 min before</option>
+                <option value="10" selected>10 min before</option>
+                <option value="15">15 min before</option>
+                <option value="30">30 min before</option>
+                <option value="60">1 hour before</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="startDate">Start date</label>
+              <input id="startDate" type="date">
+            </div>
+            <div class="control-group">
+              <label for="endDate">End date</label>
+              <input id="endDate" type="date">
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="startOver()">Start Over</button>
+          <button class="btn" id="undoBtn" onclick="undoLastChange()">Undo</button>
+          <button class="btn btn-primary" onclick="exportICS()">Export Calendar (.ics)</button>
+        </div>
+      </div>
+      <div id="output" class="review-grid"></div>
+    </section>
+  </main>
+
+  <footer class="compatibility">
+    <div class="warning-note">Note: AI may not be 100% accurate. Please manually verify before export.</div>
+    Compatible with
+    <span><img src="assets/calendar-icons/google-calendar.png" alt="Google Calendar icon">Google Calendar</span>
+    <span><img src="assets/calendar-icons/apple-calendar.png" alt="Apple Calendar icon">Apple Calendar</span>
+    <span><img src="assets/calendar-icons/ics-calendar.png" alt="ICS Calendar icon">Any ICS-compatible calendar</span>
+    <div class="credits">Made with ❤️ by A.N.SAHU</div>
+  </footer>
+
+  <div class="modal-backdrop hidden" id="classModalBackdrop">
+    <div class="modal">
+      <h3 id="modalTitle">Add Class</h3>
+      <form id="classForm">
+        <input type="hidden" id="modalEditIndex" value="">
+        <label class="field">
+          Day
+          <select id="modalDay" required>
+            <option>Monday</option>
+            <option>Tuesday</option>
+            <option>Wednesday</option>
+            <option>Thursday</option>
+            <option>Friday</option>
+          </select>
+        </label>
+        <label class="field">
+          Subject
+          <input id="modalSubject" type="text" placeholder="Chemistry" required>
+        </label>
+        <div class="field-row">
+          <label class="field">
+            Start Time
+            <input id="modalStart" type="time" required>
+          </label>
+          <label class="field">
+            End Time
+            <input id="modalEnd" type="time" required>
+          </label>
+        </div>
+        <p class="modal-error hidden" id="modalError"></p>
+        <div class="actions">
+          <button type="button" class="btn" onclick="closeClassModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="exportModalBackdrop">
+    <div class="modal">
+      <h3>Export Summary</h3>
+      <div id="exportSummaryBody" class="export-summary"></div>
+      <div class="actions">
+        <button type="button" class="btn" onclick="closeExportModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="confirmExport()">Confirm & Download</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
